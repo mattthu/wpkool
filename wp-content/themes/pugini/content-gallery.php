@@ -1,0 +1,90 @@
+<?php
+/**
+ * @package pugini
+ */
+?>
+
+<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+
+	<header class="entry-header">
+		<div class="cat-link">
+			<?php the_category(', '); ?>
+		</div>
+
+		<div class="mw_title">
+			<h2 class="entry-title">
+				<a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a>
+			</h2>
+		</div><!-- .mw_title -->
+
+		<div class="flexslider">
+		<?php 
+		$args = array(
+			'post_parent' => $post->ID,
+			'post_type' => 'attachment',
+			'orderby' => 'menu_order', // you can also sort images by date or be name
+			'order' => 'ASC',
+			'numberposts' => -1, // number of images (slides)
+			'post_mime_type' => 'image',
+			'post_status'    => null,
+		);
+
+		if ( $images = get_children( $args ) ) {
+			// if there are no images in post, don't display anything
+			echo '<ul class="slides">';
+
+					foreach( $images as $image ) {
+						echo '<li>';
+						echo wp_get_attachment_image( $image->ID, 'thumb_img' );
+						echo '</li>';
+					}
+					
+			echo '</ul>'; 
+		} ?>
+
+		</div>		
+
+	</header><!-- .entry-header -->
+	
+	<?php if (is_home() || is_search() || is_archive() || is_tag()) : // Only display Excerpts for Search ?>
+	<div class="entry-summary clearfix">
+		<?php the_excerpt(); ?>
+	</div><!-- .entry-summary -->
+	<?php else : ?>
+	<div class="entry-content clearfix">
+		<?php
+			if ( get_post_format() == 'gallery' ){
+				// no content
+			}else{			
+				the_content( __( '[&hellip;]', 'pugini' ) );
+			}?>
+		<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'pugini' ), 'after' => '</div>' ) ); ?>
+	</div><!-- .entry-content -->
+	<?php endif; ?>
+
+	<footer class="entry-meta">
+		<a class="more-link" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
+			<?php _e( 'Read more', 'pugini' ); ?><span> &rarr;</span>
+		</a>
+		
+		<div class="post-time">
+			<i class="fa fa-calendar"></i><a href="<?php the_permalink(); ?>" rel="bookmark"><?php echo get_the_date(); ?>
+			</a>
+		</div>
+		
+		<div class="author-link">
+			<i class="fa fa-user"></i><?php the_author_posts_link() ?>
+		</div>
+		
+		<?php the_tags( '<i class="tag-link fa fa-tags"></i>', ', ', '' ); ?>
+
+		<?php if ( ! post_password_required() && ( comments_open() || get_comments_number() ) ) : ?>
+			<i class="comments-link fa fa-comments-o"></i><?php comments_popup_link('0', '1', '%', 'comments-link', ''); ?>
+		<?php endif; ?>
+		
+		<?php edit_post_link( __( 'Edit', 'pugini' ), '<span class="edit-link">', '</span>' ); ?>
+		
+		<?php pugini_post_icon(); ?>
+	</footer><!-- .entry-meta -->
+	
+</article><!-- #post-## -->
